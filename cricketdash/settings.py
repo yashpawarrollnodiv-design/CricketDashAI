@@ -1,4 +1,5 @@
-
+import os
+import dj_database_url
 import os
 from pathlib import Path
 
@@ -6,17 +7,20 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Security settings
 SECRET_KEY = os.environ.get(
-    "SECRET_KEY",
-    "django-insecure-local-development-key"
+    'SECRET_KEY',
+    'django-insecure-local-development-key'
 )
 
-DEBUG = os.environ.get("DEBUG", "True").lower() == "true"
 
-ALLOWED_HOSTS = [
-    "127.0.0.1",
-    "localhost",
-    "cricketdashai-2.onrender.com",
-]
+DEBUG = 'RENDER' not in os.environ
+
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+
+if os.environ.get('RENDER_EXTERNAL_HOSTNAME'):
+    ALLOWED_HOSTS.append(
+        os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+    )
+
 
 CSRF_TRUSTED_ORIGINS = [
     "https://cricketdashai-2.onrender.com",
@@ -35,6 +39,12 @@ INSTALLED_APPS = [
 
 # Middleware
 MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+
+    # Keep your remaining existing middleware here
+]
+MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -43,6 +53,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    
 ]
 
 ROOT_URLCONF = "cricketdash.urls"
@@ -83,6 +94,13 @@ USE_I18N = True
 USE_TZ = True
 
 # Static files configuration
+STATIC_URL = 'static/'
+
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+STATICFILES_STORAGE = (
+    'whitenoise.storage.CompressedManifestStaticFilesStorage'
+)
 STATIC_URL = "/static/"
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
